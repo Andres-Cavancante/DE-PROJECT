@@ -1,0 +1,62 @@
+
+version: '3'
+services:
+
+  # # firestore emulator
+  # firestore:
+  #   image: google/cloud-sdk
+  #   command: gcloud beta emulators firestore start --host-port=0.0.0.0:8080
+
+  # # firestore data
+  # firestore-data:
+  #   build: ./firestore/
+  #   depends_on:
+  #     - firestore
+  #   volumes:
+  #     - ./firestore/:/app
+  #   env_file:
+  #     - ./dev.env
+
+  db:
+    container_name: mysql
+    build: ./repositories/mysql
+    restart: always
+    ports: 
+        - '3306:3306'
+
+  # first_api:
+  #   build: ./repositories/first_api
+  #   volumes:
+  #     - ./repositories/first_api/:/app
+  #   env_file:
+  #     - ./dev.env
+  #   environment:
+  #     - DB_USER=root
+  #     - DB_HOST=localhost
+  #     - DB_PORT=3306
+  #     - DB_PASS=pass
+  #     - DB_database=first_api
+  #   ports:
+  #     - 5000:5000
+  #   # entrypoint:
+  #   #   - /bin/bash
+  #   #   - ./app/workspace.sh
+    
+  #   depends_on:
+  #     - db
+  #   #   - firestore
+  #   stdin_open: true
+  #   tty: true
+    
+#   filebrowser:
+#     image: filebrowser/filebrowser
+#     ports:
+#       - 3000:3000
+#     volumes:
+#       - ./filebrowser/config.json:/.filebrowser.json
+#       - magrathea_storage:/srv/
+
+# volumes:
+
+#   magrathea_storage:
+#     external: true
