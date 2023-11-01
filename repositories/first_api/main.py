@@ -1,9 +1,7 @@
 from flask import Flask, request, jsonify, make_response
-from src.database_connect import database
-import uuid
-import hashlib
+from src.api import Api
 
-db = database()
+api = Api()
 app = Flask(__name__)
 
 @app.route("/")
@@ -13,15 +11,21 @@ def get_generico():
 @app.route("/users/create", methods=["POST"])
 def create_user():
     data = request.get_json()
-    hs_pass = hashlib.sha256(data["password"].encode()).hexdigest()
-    user_name = data["user"]
-    message, code = db.write_user(str(uuid.uuid4()), user_name, hs_pass)
+    message, code = api.write_user(data["user"], data["password"].encode())
     return jsonify({"messsage": message, "code": code})
+
+@app.route("/token")
+def get_token():
+    data = request.get_json()
+    client_secret = data["client_secret"]
+    user = data["userName"]
+    token = api.generate_token(client_secret, user)
+    return jsonify({"token": token.decode("UTF-8")})
 
 @app.route("/reports/<account_id>", methods=["GET"])
 def get_report(account_id: str):
     payload = request.get_json()
-    data, code = db.direct_query_report(payload["query_parameter"])
+    data, code = api.direct_query_report(payload["query_parameter"])
     return jsonify({"content": {"data": data}, "code": code})
 
 if __name__ == "__main__":

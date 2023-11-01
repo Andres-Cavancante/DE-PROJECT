@@ -8,6 +8,7 @@ COPY . /app
 # RUN pip install mock==4.0.3
 # RUN pip install google-cloud-firestore==2.0.2
 RUN pip install mysql-connector-python
+RUN pip install PyJWT
 # RUN apt-get update && apt-get install -y netcat-traditional
 # ENV DOCKER_UPDATED=true
 # ENV FUNCTION_NAME=query_data

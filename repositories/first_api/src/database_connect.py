@@ -3,26 +3,31 @@ import os
 
 class database:
     def __init__(self):
-        self.user = os.getenv("DB_USER", "root")
-        self.host = os.getenv("DB_HOST", "localhost")
-        self.port = int(os.getenv("DB_PORT", 3306))
-        self.password = os.getenv("DB_PASS", "pass")
+        self.config = {
+            "host": os.getenv("DB_HOST", "localhost"),
+            "user": os.getenv("DB_USER", "root"),
+            "password": os.getenv("DB_PASS", "pass"),
+            "port": int(os.getenv("DB_PORT", 3306))
+        }
         self.database = os.getenv("DB_database", "first_api")
 
-    def __interact(self, method, query: str):
+    def interact(self, method: str, query: str, data: str = None):
+        status = "Error"
+        response = None
+
         try:
-            connection = mysql.connector.connect(user=self.user, host=self.host, port=self.port, password=self.password)
+            connection = mysql.connector.connect(**self.config)
             cursor = connection.cursor(buffered=True)
         except:
-            return f"An error ocurred trying to stablish connection to the database", 502
+            return status, f"An error ocurred trying to stablish connection to the database"
         
         try:
             cursor.execute(f"USE {self.database};")
-            cursor.execute(query)
+            cursor.execute(query) if not data else cursor.execute(query, data) 
         except:
-            return f"An error ocurred trying to interact with the database", 502
+            return status, f"An error ocurred trying to interact with the database"
 
-        response = "Success"
+        status = "Success"
 
         if method == "GET":
             response = cursor.fetchall()
@@ -30,16 +35,4 @@ class database:
             connection.commit()
         cursor.close()
         connection.close()
-        return response
-
-    def write_user(self, userID: str, userName: str, userPassword: str):
-        query = f"INSERT INTO users (userID, userName, userPassword) VALUES ('{userID}', '{userName}', '{userPassword}');"
-        db_response = self.__interact("SET", query)
-        if db_response == "Success": 
-            return  f"User {userName} created", 200 
-        else:
-            return db_response, 500
-        
-    def direct_query_report(self, query: str):
-        db_response = self.__interact("GET", query)
-        return db_response, 200
+        return status, response if method == "GET" else status

@@ -1,29 +1,14 @@
-# from flask import Flask, request, jsonify
-# from flask_sqlalchemy import SQLAlchemy
-import mysql.connector
-import hashlib
-import requests
+import csv
 import json
 
+# Open the CSV file for reading
+with open('input.csv', 'r') as csv_file:
+    # Create a JSONL file for writing
+    with open('output.jsonl', 'w') as jsonl_file:
+        # Create a CSV reader
+        csv_reader = csv.DictReader(csv_file)
 
-# app = Flask(__name__)
-# app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://data-engineer:pass@172.19.0.3:3306/database"
-# db = SQLAlchemy(app)
-
-# class User(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-
-# new_user = User(id="23423424")
-# db.session.add(new_user)
-# db.session.commit()
-
-mydb = mysql.connector.connect(
-  host="172.21.0.2",
-  user="data-engineer",
-  password="pass"
-)
-
-
-# response = requests.post("http://localhost:5000/users/create", json={"user": "samsumg", "password": "samsung2023@Global"})
-
-# print(response)
+        # Iterate through each row in the CSV and write as JSONL
+        for row in csv_reader:
+            json.dump(row, jsonl_file)
+            jsonl_file.write('\n')
