@@ -3,14 +3,14 @@ CREATE DATABASE IF NOT EXISTS first_api;
 USE first_api;
 
 CREATE TABLE users (
-    userName varchar(255) not null,
-    userPassword varchar(255) not null,
+    appId varchar(255) not null,
+    appPassword varchar(255) not null,
     clientSecret varchar(255) not null
 );
 
 INSERT INTO users (
-    userName, 
-    userPassword,
+    appId, 
+    appPassword,
     clientSecret
     ) 
 VALUES ( 
@@ -20,6 +20,7 @@ VALUES (
 );
 
 CREATE TABLE basic (
+    clientSecret varchar (255) not null,
     accountId varchar(255) not null,
     day varchar(255) not null,
     campaignName varchar(255) not null,

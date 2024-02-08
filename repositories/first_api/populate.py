@@ -49,6 +49,3 @@ for _ in range(3):
 connection.commit()
 cursor.close()
 connection.close()
-
-
-

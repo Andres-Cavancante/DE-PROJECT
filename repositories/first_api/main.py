@@ -1,8 +1,22 @@
 from flask import Flask, request, jsonify, make_response
 from src.api import Api
+from functools import wraps
 
 api = Api()
 app = Flask(__name__)
+
+def require_token(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        token = request.headers.get("Authorization")
+        if not token:
+            return {"message": "Token is missing!"}
+        
+        secret = api.check_token(token)
+    
+        return f(secret=secret, *args, **kwargs)
+    return wrapper
+
 
 @app.route("/")
 def get_generico():
@@ -14,18 +28,21 @@ def create_user():
     message, code = api.write_user(data["user"], data["password"].encode())
     return jsonify({"messsage": message, "code": code})
 
-@app.route("/token")
+@app.route("/token", methods=["GET"])
 def get_token():
     data = request.get_json()
-    client_secret = data["client_secret"]
-    user = data["userName"]
-    token = api.generate_token(client_secret, user)
-    return jsonify({"token": token.decode("UTF-8")})
+    password = data["password"]
+    user = data["app_id"]
+    token = api.generate_token(user, password)
+    return jsonify({"token": token})
 
 @app.route("/reports/<account_id>", methods=["GET"])
-def get_report(account_id: str):
+@require_token
+def get_report(account_id: str, secret: str):
     payload = request.get_json()
-    data, code = api.direct_query_report(payload["query_parameter"])
+    # if request.headers.get("Authorization", None):
+
+    data, code = api.direct_query_report(secret, payload)
     return jsonify({"content": {"data": data}, "code": code})
 
 if __name__ == "__main__":
